@@ -171,4 +171,24 @@ class DBCSignal {
     }
     return null;
   }
+
+  List<int> encode(List<int> payload) {
+    // Apply the scaling and offset
+    int rawValue = ((value - offset) / factor).round();
+    // Handle signedness if the signal is signed
+    if (signalSignedness == DBCSignalSignedness.SIGNED) {
+      // Convert to signed value (two's complement)
+      rawValue = rawValue & ((1 << length) - 1);  // Mask to fit within the signal's length
+    }
+
+    for (int i = 0; i < mappingIndexes.length; i++) {
+      int bitPos = mappingIndexes[i];  // Get the bit position
+      int bitValue = (rawValue & mapping[bitPos]) != 0 ? 1 : 0; // Extract the bit based on the mask
+      payload[bitPos] = bitValue;
+    }
+
+    return payload;
+  }
+
+
 }

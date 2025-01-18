@@ -7,7 +7,7 @@ import 'signal/dbc_signal.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 
-const int canIdLenght = 2; // in bytes
+const int canIdLength = 2; // in bytes
 const int byteLen = 8; // in bits
 const int maxPayload = 8; // in bytes
 
@@ -120,23 +120,23 @@ class DBCDatabase {
     int mainOffset = 0;
     Map<String, num> decoded = {};
 
-    while (mainOffset < bytes.length - canIdLenght) {
+    while (mainOffset < bytes.length - canIdLength) {
       while (!database.containsKey(bytes
-          .sublist(mainOffset, mainOffset + canIdLenght)
+          .sublist(mainOffset, mainOffset + canIdLength)
           .buffer
           .asByteData()
           .getUint16(0))) {
         mainOffset++;
-        if (mainOffset >= bytes.length - canIdLenght) {
+        if (mainOffset >= bytes.length - canIdLength) {
           return decoded;
         }
       }
       int canId = bytes
-          .sublist(mainOffset, mainOffset + canIdLenght)
+          .sublist(mainOffset, mainOffset + canIdLength)
           .buffer
           .asByteData()
           .getUint16(0);
-      mainOffset += canIdLenght;
+      mainOffset += canIdLength;
 
       Map<String, DBCSignal> messageData = database[canId]!;
       int messageLength = messageLengths[canId]!;
@@ -176,4 +176,37 @@ class DBCDatabase {
     }
     return decoded;
   }
+
+  Uint8List encodeMessage(int canId) {
+    // Ensure the CAN ID exists in the database
+    if (!database.containsKey(canId)) {
+      throw ArgumentError("CAN ID $canId not found in database.");
+    }
+
+    // Retrieve the signals for the given CAN ID
+    Map<String, DBCSignal> signals = database[canId]!;
+
+    // Create an 8-byte CAN frame (standard size)
+    List<int> message = List.filled(10, 0);
+
+    // Encode CAN ID (2 bytes for 11-bit CAN IDs)
+    message[0] = (canId >> 8) & 0xFF; // High byte of CAN ID
+    message[1] = canId & 0xFF;        // Low byte of CAN ID
+
+    // For each signal, encode its value into the message's payload
+    List<int> payloadBitField = BitField.from(Uint8List(messageLengths[canId]!));
+
+    for (var signalEntry in signals.entries) {
+      DBCSignal signal = signalEntry.value;
+      payloadBitField = signal.encode(payloadBitField);
+    }
+    List<int> byteValue = BitField.convert64BitListTo8Bit(payloadBitField);
+
+    for (int i = 0; i<8; i++){
+      message[2+i]=byteValue[i];
+    }
+    return Uint8List.fromList(message);
+  }
+  
+
 }

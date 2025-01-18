@@ -1,6 +1,6 @@
-name: dart_dbc_parser_web
-description: "DBC parser for web application"
-version: 0.0.2
+name: can_dbc_parser
+description: "CAN DBC parser for flutter"
+version: 0.0.3
 homepage: https://akhilsuthapalli.com
 
 environment:
@@ -22,12 +22,6 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
-flutter:
-  plugin:
-    platforms:
-      web:
-        pluginClass: DBCDatabase
-        fileName: dart_dbc_parser_web.dart
 
   # To add assets to your package, add an assets section, like this:
   # assets:

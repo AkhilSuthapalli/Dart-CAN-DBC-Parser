@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import '../dart_dbc_parser_web.dart';
+import '../can_dbc_parser.dart';
 import '../signal/dbc_signal.dart';
 
 /// An interface to prepare payload for decoding
@@ -21,6 +21,26 @@ abstract class BitField {
       byteCnt++;
     }
     return data;
+  }
+
+  static List<int> convert64BitListTo8Bit(List<int> bitList) {
+    // List to store the 8-bit integers
+    List<int> byteList = [];
+
+    // Loop through the bitList in chunks of 8 bits
+    for (int i = 0; i < bitList.length; i += 8) {
+      int byteValue = 0;
+
+      // Convert the 8-bit slice to a single byte
+      var byteValue2 = List.from(bitList.sublist(i,i+8).reversed);
+      for (int j = 0; j < 8; j++) {
+        byteValue |= (byteValue2[j] << (7 - j));  // Shift to position (7-j)
+      }
+
+      byteList.add(byteValue);
+    }
+
+    return byteList;
   }
 
   /// Returns a mapping to be used when decoding
