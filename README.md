@@ -1,16 +1,15 @@
 # Dart DBC Parser for web
 
-The package helps to parse the CAN DBC file for web.
+The package helps to parse the CAN DBC file.
 
 # Features
 
-DBC parsing, CAN decoding
+DBC parsing, CAN decoding, CAN encoding
 
 # Usage
 
-Web natively doesn't support File (dart:io is not supported in Web). You can make use of this package to create CAN Database and decode CAN messages.
 
-You can upload the file using [file_picker](https://pub.dev/packages/file_picker) to web application and create bytes from the file selected
+You can upload the file using [file_picker](https://pub.dev/packages/file_picker) to application and create bytes from the file selected
 
 ```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles();
