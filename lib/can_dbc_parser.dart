@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'bitfield/bit_field.dart';
 import 'signal/dbc_signal.dart';
 
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 
 const int canIdLength = 2; // in bytes
@@ -31,10 +30,6 @@ class DBCDatabase {
         required this.isMultiplex,
         required this.multiplexors});
 
-  static void registerWith(Registrar registrar) {
-    // Perform any web-specific plugin registration here.
-    // print('DBCDatabase registered for web');
-  }
 
   /// The initial loading function.
   ///

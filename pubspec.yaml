@@ -1,22 +1,11 @@
 name: can_dbc_parser
-description: "CAN DBC parser for flutter"
-version: 0.0.3
+description: "CAN DBC parser for dart"
+version: 1.0.0
 homepage: https://akhilsuthapalli.com
 
 environment:
-  sdk: ^3.6.0
-  flutter: ">=1.20.0"
+  sdk: '>=2.19.0 <4.0.0'
 
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
