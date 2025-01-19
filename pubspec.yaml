@@ -1,7 +1,7 @@
 name: can_dbc_parser
 description: "CAN DBC parser for dart"
-version: 1.0.0
-homepage: https://akhilsuthapalli.com
+version: 1.0.1
+homepage: https://github.com/AkhilSuthapalli/Dart-CAN-DBC-Parser
 
 environment:
   sdk: '>=2.19.0 <4.0.0'

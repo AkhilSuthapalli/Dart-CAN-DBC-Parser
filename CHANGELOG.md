@@ -6,3 +6,7 @@
 ## 1.0.0
 
 * All platform support
+
+## 1.0.1
+
+* ReadME updated
