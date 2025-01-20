@@ -35,9 +35,9 @@ abstract class BitField {
       int byteValue = 0;
 
       // Convert the 8-bit slice to a single byte
-      var byteValue2 = List.from(bitList.sublist(i,i+8).reversed);
+      var byteValue2 = List.from(bitList.sublist(i, i + 8).reversed);
       for (int j = 0; j < 8; j++) {
-        byteValue |= (byteValue2[j] << (7 - j));  // Shift to position (7-j)
+        byteValue |= (byteValue2[j] << (7 - j)); // Shift to position (7-j)
       }
 
       byteList.add(byteValue);

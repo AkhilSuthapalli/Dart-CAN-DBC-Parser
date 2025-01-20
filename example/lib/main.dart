@@ -33,16 +33,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   late DBCDatabase can;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     loadCAN();
   }
 
-  void loadCAN() async{
+  void loadCAN() async {
     var rootBundleFile = await rootBundle.load("assets/sample.dbc");
     can = await DBCDatabase.loadFromBytes(rootBundleFile.buffer.asUint8List());
   }
@@ -50,64 +49,66 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            onPressed: (){
-              var signal = Uint8List.fromList([5, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-              Map<String, num> decodedString = can.decode(signal);
-              print(decodedString);
-              /// returns
-              /// {FuelLevel: 0}
-            },
-            child: Text("Decode Signal"),
-          ),
-          ElevatedButton(
-            onPressed: (){
-              var signal = can.encodeMessage(1280);
-              print(signal);
-              /// returns
-              /// [5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-              /// min value is considered as default for the signals
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                var signal = Uint8List.fromList([5, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+                Map<String, num> decodedString = can.decode(signal);
+                print(decodedString);
 
-            },
-            child: Text("Encode Signal"),
-          ),
-          ElevatedButton(
-            onPressed: (){
-              var value = can.database[1280]!["FuelLevel"]?.value;
-              print(value);
-              /// returns 0
-              /// if ran after update value
-              /// you'll get 4
-              /// If you do encoding
-              /// will lead to [5, 0, 4, 0, 0, 0, 0, 0, 0, 0]
-            },
-            child: Text("Get Value"),
-          ),
-          ElevatedButton(
-            onPressed: (){
-              double newValue = 4;
-              can.database[1280]!["FuelLevel"]?.value = newValue;
-            },
-            child: Text("Update Value"),
-          ),
-          ElevatedButton(
-            onPressed: (){
-              print(can.valueTable);
-              /// returns
-              /// {SideStandStatus: {1: DOWN, 0: UP}}
-            },
-            child: Text("Print value table"),
-          ),
-        ],
-      )
-    );
+                /// returns
+                /// {FuelLevel: 0}
+              },
+              child: Text("Decode Signal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                var signal = can.encodeMessage(1280);
+                print(signal);
+
+                /// returns
+                /// [5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                /// min value is considered as default for the signals
+              },
+              child: Text("Encode Signal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                var value = can.database[1280]!["FuelLevel"]?.value;
+                print(value);
+
+                /// returns 0
+                /// if ran after update value
+                /// you'll get 4
+                /// If you do encoding
+                /// will lead to [5, 0, 4, 0, 0, 0, 0, 0, 0, 0]
+              },
+              child: Text("Get Value"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                double newValue = 4;
+                can.database[1280]!["FuelLevel"]?.value = newValue;
+              },
+              child: Text("Update Value"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                print(can.valueTable);
+
+                /// returns
+                /// {SideStandStatus: {1: DOWN, 0: UP}}
+              },
+              child: Text("Print value table"),
+            ),
+          ],
+        ));
   }
 }

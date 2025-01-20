@@ -4,8 +4,6 @@ import 'dart:typed_data';
 import 'bitfield/bit_field.dart';
 import 'signal/dbc_signal.dart';
 
-
-
 const int canIdLength = 2; // in bytes
 const int byteLen = 8; // in bits
 const int maxPayload = 8; // in bytes
@@ -29,12 +27,10 @@ class DBCDatabase {
 
   DBCDatabase(
       {required this.database,
-        required this.messageLengths,
-        required this.isMultiplex,
-        required this.multiplexors,
-        required this.valueTable
-      });
-
+      required this.messageLengths,
+      required this.isMultiplex,
+      required this.multiplexors,
+      required this.valueTable});
 
   /// The initial loading function.
   ///
@@ -66,7 +62,8 @@ class DBCDatabase {
 
     RegExp signalNameRegex = RegExp(r"SG_\s[a-zA-Z0-9_ ]+");
 
-    RegExp valueTableRegex = RegExp(r'VAL_\s+(\d+)\s+(\w+)\s+((?:\d+\s+"[^"]+"\s*)+)');
+    RegExp valueTableRegex =
+        RegExp(r'VAL_\s+(\d+)\s+(\w+)\s+((?:\d+\s+"[^"]+"\s*)+)');
 
     bool messageContinuation = false;
     int canId = 0;
@@ -84,8 +81,7 @@ class DBCDatabase {
         messageLengths[canId] = length;
         database[canId] = {};
       } else if (messageContinuation && signalRegex.hasMatch(line)) {
-        String signalName =
-        signalNameRegex.firstMatch(line)![0]!.substring(4);
+        String signalName = signalNameRegex.firstMatch(line)![0]!.substring(4);
         if (signalName.endsWith(' ')) {
           signalName = signalName.substring(0, signalName.length - 1);
         }
@@ -97,18 +93,17 @@ class DBCDatabase {
       }
 
       /// To read the individual signal value maps and assign to SignalValue map
-      if(valueTableRegex.hasMatch(line)){
+      if (valueTableRegex.hasMatch(line)) {
         RegExpMatch? match = valueTableRegex.firstMatch(line);
         // String messageId = match!.group(1)!;
         String signalName = match!.group(2)!;
         String valueMappings = match.group(3)!;
-        
+
         RegExp pairPattern = RegExp(r'(\d+)\s+"([^"]+)"');
         Iterable<RegExpMatch> pairs = pairPattern.allMatches(valueMappings);
 
         Map<int, String> valueDescriptionMap = {
-          for (var pair in pairs)
-            int.parse(pair.group(1)!): pair.group(2)!,
+          for (var pair in pairs) int.parse(pair.group(1)!): pair.group(2)!,
         };
 
         valueTable[signalName] = valueDescriptionMap;
@@ -118,22 +113,21 @@ class DBCDatabase {
     // Post process
     for (int canId in database.keys) {
       if (database[canId]!.values.any(
-              (element) => element.signalMode == DBCSignalMode.MULTIPLEX_GROUP)) {
+          (element) => element.signalMode == DBCSignalMode.MULTIPLEX_GROUP)) {
         isMultiplex[canId] = true;
         multiplexors[canId] = database[canId]!.keys.firstWhere((element) =>
-        database[canId]![element]!.signalMode == DBCSignalMode.MULTIPLEXOR);
+            database[canId]![element]!.signalMode == DBCSignalMode.MULTIPLEXOR);
       } else {
         isMultiplex[canId] = false;
       }
     }
 
     return DBCDatabase(
-      database: database,
-      messageLengths: messageLengths,
-      isMultiplex: isMultiplex,
-      multiplexors: multiplexors,
-      valueTable: valueTable
-    );
+        database: database,
+        messageLengths: messageLengths,
+        isMultiplex: isMultiplex,
+        multiplexors: multiplexors,
+        valueTable: valueTable);
   }
 
   /// A decode function that runs on a [Uint8List], eg. from a socket
@@ -168,12 +162,12 @@ class DBCDatabase {
       }
 
       List<int> payloadBitField =
-      BitField.from(bytes.sublist(mainOffset, mainOffset + messageLength));
+          BitField.from(bytes.sublist(mainOffset, mainOffset + messageLength));
 
       mainOffset += messageLength;
       if (isMultiplex[canId]!) {
         int? activeMultiplexGroup =
-        messageData[multiplexors[canId]]!.decode(payloadBitField)?.toInt();
+            messageData[multiplexors[canId]]!.decode(payloadBitField)?.toInt();
         if (activeMultiplexGroup == null) {
           continue;
         }
@@ -190,7 +184,7 @@ class DBCDatabase {
       } else {
         for (String signalName in messageData.keys) {
           final num? signalValue =
-          messageData[signalName]!.decode(payloadBitField);
+              messageData[signalName]!.decode(payloadBitField);
           if (signalValue != null) {
             decoded[signalName] = signalValue;
           }
@@ -214,10 +208,11 @@ class DBCDatabase {
 
     // Encode CAN ID (2 bytes for 11-bit CAN IDs)
     message[0] = (canId >> 8) & 0xFF; // High byte of CAN ID
-    message[1] = canId & 0xFF;        // Low byte of CAN ID
+    message[1] = canId & 0xFF; // Low byte of CAN ID
 
     // For each signal, encode its value into the message's payload
-    List<int> payloadBitField = BitField.from(Uint8List(messageLengths[canId]!));
+    List<int> payloadBitField =
+        BitField.from(Uint8List(messageLengths[canId]!));
 
     for (var signalEntry in signals.entries) {
       DBCSignal signal = signalEntry.value;
@@ -225,11 +220,9 @@ class DBCDatabase {
     }
     List<int> byteValue = BitField.convert64BitListTo8Bit(payloadBitField);
 
-    for (int i = 0; i<8; i++){
-      message[2+i]=byteValue[i];
+    for (int i = 0; i < 8; i++) {
+      message[2 + i] = byteValue[i];
     }
     return Uint8List.fromList(message);
   }
-  
-
 }

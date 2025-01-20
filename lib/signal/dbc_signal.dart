@@ -28,22 +28,21 @@ enum DBCSignalMode {
 
 /// An object that stores necessary data to decode a CAN signal
 class DBCSignal {
-  DBCSignal({
-    required this.signalSignedness,
-    required this.signalType,
-    required this.signalMode,
-    required this.multiplexGroup,
-    required this.start,
-    required this.length,
-    required this.mapping,
-    required this.mappingIndexes,
-    required this.factor,
-    required this.offset,
-    required this.min,
-    required this.max,
-    required this.unit,
-    required this.value
-  });
+  DBCSignal(
+      {required this.signalSignedness,
+      required this.signalType,
+      required this.signalMode,
+      required this.multiplexGroup,
+      required this.start,
+      required this.length,
+      required this.mapping,
+      required this.mappingIndexes,
+      required this.factor,
+      required this.offset,
+      required this.min,
+      required this.max,
+      required this.unit,
+      required this.value});
 
   final DBCSignalSignedness signalSignedness;
   final DBCSignalType signalType;
@@ -178,17 +177,18 @@ class DBCSignal {
     // Handle signedness if the signal is signed
     if (signalSignedness == DBCSignalSignedness.SIGNED) {
       // Convert to signed value (two's complement)
-      rawValue = rawValue & ((1 << length) - 1);  // Mask to fit within the signal's length
+      rawValue = rawValue &
+          ((1 << length) - 1); // Mask to fit within the signal's length
     }
 
     for (int i = 0; i < mappingIndexes.length; i++) {
-      int bitPos = mappingIndexes[i];  // Get the bit position
-      int bitValue = (rawValue & mapping[bitPos]) != 0 ? 1 : 0; // Extract the bit based on the mask
+      int bitPos = mappingIndexes[i]; // Get the bit position
+      int bitValue = (rawValue & mapping[bitPos]) != 0
+          ? 1
+          : 0; // Extract the bit based on the mask
       payload[bitPos] = bitValue;
     }
 
     return payload;
   }
-
-
 }
