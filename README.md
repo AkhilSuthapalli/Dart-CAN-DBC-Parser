@@ -38,6 +38,13 @@ can.can.database[849]?[signal_name]?.value = new_signal_value;
 Uint8List encoded = can.encodeMessage(849);
 ```
 
+Get the map of values for a particular signal.
+``` dart
+// Signal: Switch_State 1 "ON" 0 "OFF" 
+Map<int, String> valueMap = can.valueTable["Switch_State"]
+// Results in { 0 : "OFF" , 1 : "ON" }
+```
+
 ## Thanks to
 
 This package was made using

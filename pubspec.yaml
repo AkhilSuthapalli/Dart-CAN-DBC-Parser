@@ -1,5 +1,5 @@
 name: can_dbc_parser
-description: "CAN DBC parser for dart"
+description: "CAN DBC parser for dart. Load the DBC from bytes and use the package to decode, encode CAN signals"
 version: 1.0.1
 homepage: https://github.com/AkhilSuthapalli/Dart-CAN-DBC-Parser
 

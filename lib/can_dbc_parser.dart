@@ -12,7 +12,7 @@ const int maxPayload = 8; // in bytes
 
 /// An object that stores multiple [DBCSignal]-s along with information needed to decode them
 class DBCDatabase {
-  /// Map of [DBCSignal]-s used for decoding. Signals are grouped by their dedcimal CAN id's.
+  /// Map of [DBCSignal]-s used for decoding. Signals are grouped by their decimal CAN id's.
   final Map<int, Map<String, DBCSignal>> database;
 
   /// Length of each CAN message, the key is the decimal CAN id
@@ -24,11 +24,16 @@ class DBCDatabase {
   /// Shortcut for finding the [DBCSignalMode.MULTIPLEXOR] of a message
   final Map<int, String> multiplexors;
 
+  /// Map of signal and its value table
+  final Map<String, dynamic> valueTable;
+
   DBCDatabase(
       {required this.database,
         required this.messageLengths,
         required this.isMultiplex,
-        required this.multiplexors});
+        required this.multiplexors,
+        required this.valueTable
+      });
 
 
   /// The initial loading function.
@@ -40,6 +45,7 @@ class DBCDatabase {
     Map<int, int> messageLengths = {};
     Map<int, bool> isMultiplex = {};
     Map<int, String> multiplexors = {};
+    Map<String, dynamic> valueTable = {};
 
     for (int i = 0; i < bytes.length; i++) {
       if (bytes[i] > 127) {
@@ -59,6 +65,8 @@ class DBCDatabase {
     RegExp messageLengthRegex = RegExp(r":\s\d\s");
 
     RegExp signalNameRegex = RegExp(r"SG_\s[a-zA-Z0-9_ ]+");
+
+    RegExp valueTableRegex = RegExp(r'VAL_\s+(\d+)\s+(\w+)\s+((?:\d+\s+"[^"]+"\s*)+)');
 
     bool messageContinuation = false;
     int canId = 0;
@@ -87,6 +95,24 @@ class DBCDatabase {
         messageContinuation = false;
         canId = 0;
       }
+
+      /// To read the individual signal value maps and assign to SignalValue map
+      if(valueTableRegex.hasMatch(line)){
+        RegExpMatch? match = valueTableRegex.firstMatch(line);
+        // String messageId = match!.group(1)!;
+        String signalName = match!.group(2)!;
+        String valueMappings = match.group(3)!;
+        
+        RegExp pairPattern = RegExp(r'(\d+)\s+"([^"]+)"');
+        Iterable<RegExpMatch> pairs = pairPattern.allMatches(valueMappings);
+
+        Map<int, String> valueDescriptionMap = {
+          for (var pair in pairs)
+            int.parse(pair.group(1)!): pair.group(2)!,
+        };
+
+        valueTable[signalName] = valueDescriptionMap;
+      }
     }
 
     // Post process
@@ -102,10 +128,12 @@ class DBCDatabase {
     }
 
     return DBCDatabase(
-        database: database,
-        messageLengths: messageLengths,
-        isMultiplex: isMultiplex,
-        multiplexors: multiplexors);
+      database: database,
+      messageLengths: messageLengths,
+      isMultiplex: isMultiplex,
+      multiplexors: multiplexors,
+      valueTable: valueTable
+    );
   }
 
   /// A decode function that runs on a [Uint8List], eg. from a socket

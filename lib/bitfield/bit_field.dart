@@ -23,6 +23,9 @@ abstract class BitField {
     return data;
   }
 
+  /// Returns a list as byte level from bits
+  ///
+  /// CAN encoding requires this as to form the 8 byte message.
   static List<int> convert64BitListTo8Bit(List<int> bitList) {
     // List to store the 8-bit integers
     List<int> byteList = [];
@@ -45,12 +48,12 @@ abstract class BitField {
 
   /// Returns a mapping to be used when decoding
   ///
-  /// This mapping contains the weigth each bit will have towards a decoded value
-  static List<int> getMapping(int lenght, int start, DBCSignalType signalType) {
+  /// This mapping contains the weight each bit will have towards a decoded value
+  static List<int> getMapping(int length, int start, DBCSignalType signalType) {
     if (signalType == DBCSignalType.INTEL) {
       List<int> data = List.filled(64, 0);
       int exp = 0;
-      List<int> indexes = List.filled(lenght, 0);
+      List<int> indexes = List.filled(length, 0);
       int idxIdx = 0;
       while (idxIdx < indexes.length) {
         indexes[idxIdx++] = start++;
@@ -67,28 +70,28 @@ abstract class BitField {
       return data;
     } else {
       List<int> data = List.filled(64, 0);
-      int exp = lenght - 1;
+      int exp = length - 1;
 
       int trueStart = start;
-      if (start.remainder(byteLen) < lenght) {
+      if (start.remainder(byteLen) < length) {
         trueStart = start - start.remainder(byteLen);
       } else {
-        trueStart = start - lenght + 1;
+        trueStart = start - length + 1;
       }
-      List<int> indexes = List.filled(lenght, 0);
+      List<int> indexes = List.filled(length, 0);
       int idxIdx = 0;
       int rem = 0;
       rem = start.remainder(byteLen) == 0 ? 8 : start.remainder(byteLen) + 1;
-      rem = min(rem, lenght);
+      rem = min(rem, length);
       while (idxIdx < indexes.length) {
         indexes[idxIdx] = trueStart + rem - 1;
         idxIdx++;
         trueStart--;
         if ((trueStart + rem) % byteLen == 0) {
-          trueStart += (byteLen + rem + (lenght - idxIdx).remainder(byteLen));
-          rem = (lenght - idxIdx).remainder(byteLen) == 0
+          trueStart += (byteLen + rem + (length - idxIdx).remainder(byteLen));
+          rem = (length - idxIdx).remainder(byteLen) == 0
               ? 8
-              : (lenght - idxIdx).remainder(byteLen);
+              : (length - idxIdx).remainder(byteLen);
         }
       }
 

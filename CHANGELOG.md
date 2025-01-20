@@ -10,3 +10,7 @@
 ## 1.0.1
 
 * ReadME updated
+
+## 1.1.0
+
+* Added support for Signal values table
